@@ -9,7 +9,7 @@ if [ -n "$FTP_LIST" ]; then
 		ftp_pass=${tab[1]}
 		CRYPTED_PASSWORD=$(perl -e 'print crypt($ARGV[0], "password")' $ftp_pass)
 		mkdir /home/$ftp_login
-		useradd --shell /bin/sh -d /home/$ftp_login --password $CRYPTED_PASSWORD $ftp_login
+		useradd --shell /bin/sh ${USERADD_OPTIONS} -d /home/$ftp_login --password $CRYPTED_PASSWORD $ftp_login
 		chown -R $ftp_login:$ftp_login /home/$ftp_login
 	done
 fi
