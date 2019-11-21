@@ -41,6 +41,26 @@ created user can have the uid of www-data (33) ).
 It allows to give different accesses, but each user will create
 the files and directory with the right user on the host.
 
+docker-compose.yml example
+--------------------------
+
+You can for example use a docker-compose like this :
+
+```yaml
+version: '3.7'
+
+services:
+  proftpd:
+    image: kibatic/proftpd
+    network_mode: "host"
+    restart: unless-stopped
+    environment:
+      FTP_LIST: "myusername:mypassword"
+      USERADD_OPTIONS: "-o --gid 33 --uid 33"
+    volumes:
+      - "/the_direcotry_on_the_host:/home/myusername"
+```
+
 Author
 ------
 
