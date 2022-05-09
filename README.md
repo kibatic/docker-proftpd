@@ -3,6 +3,8 @@ docker-proftpd
 
 Simple way to install a proftp server on an host.
 
+This FTP server is in active mode.
+
 Quick start
 -----------
 
@@ -60,6 +62,38 @@ services:
     volumes:
       - "/the_direcotry_on_the_host:/home/myusername"
 ```
+
+Firewall
+--------
+
+You can use these firewall rules with the FTP in active mode
+
+```bash
+modprobe ip_conntrack_ftp
+iptables -A INPUT -p tcp --sport 21 -m state --state ESTABLISHED -j ACCEPT
+iptables -A OUTPUT -p tcp --sport 21 -m state --state ESTABLISHED -j ACCEPT
+iptables -A INPUT -p tcp --sport 20 -m state --state ESTABLISHED,RELATED -j ACCEPT
+iptables -A OUTPUT -p tcp --sport 20 -m state --state ESTABLISHED -j ACCEPT
+```
+
+Testing this Dockerfile
+-----------------------
+
+If you want to test this Dockerfile, you can use the tester directory :
+
+```bash
+cd tester
+docker-compose build --pull
+docker-compose up
+```
+
+Versions
+--------
+
+* 2022-05-09 : update to debian:bullseye-slim and better doc
+* 2019-10-09 : USERADD_OPTIONS added
+* 2019-04-01 : update to debian stretch
+* 2018-03-30 : creation
 
 Author
 ------

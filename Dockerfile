@@ -1,4 +1,4 @@
-FROM debian:stretch
+FROM debian:bullseye-slim
 
 MAINTAINER Philippe Le Van (@plv on twitter)
 
@@ -7,7 +7,7 @@ RUN apt-get update -qq && \
 	apt-get clean && \
     rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-RUN sed -i "s/# DefaultRoot/DefaultRoot/" /etc/proftpd/proftpd.conf
+RUN sed -i "s/# DefaultRoot/DefaultRoot /" /etc/proftpd/proftpd.conf
 
 EXPOSE 20 21
 
