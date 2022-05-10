@@ -3,7 +3,8 @@ docker-proftpd
 
 Simple way to install a proftp server on an host.
 
-This FTP server is in active mode.
+This FTP server work in passive mode (perhaps in active mode also but not sure...)
+
 
 Quick start
 -----------
@@ -11,10 +12,15 @@ Quick start
 ```bash
 docker run -d --net host \
 	-e FTP_LIST="user1:pass1;user2:pass2" \
+	-e MASQUERADE_ADDRESS=1.2.3.4 \
 	-v /path_to_ftp_dir_for_user1:/home/user1 \
 	-v /path_to_ftp_dir_for_user2:/home/user2 \
 	kibatic/proftpd
 ```
+
+The default passive ports are 50000-50100.
+
+The masquerade address should be the external address of your FTP server
 
 Warning
 -------
@@ -24,13 +30,16 @@ use ";" or ":" in your user name or password.
 
 (ok, this is ugly, but using FTP in 2018 is ugly too)
 
-USERADD_OPTIONS
----------------
+USERADD_OPTIONS and PASSIVE_MIN_PORT, PASSIVE_MAX_PORT
+------------------------------------------------------
 
 ```bash
 docker run -d --net host \
 	-e FTP_LIST="user1:pass1;user2:pass2" \
 	-e USERADD_OPTIONS="-o --gid 33 --uid 33" \
+	-e PASSIVE_MIN_PORT=50000
+	-e PASSIVE_MAX_PORT=50100
+	-e MASQUERADE_ADDRESS=1.2.3.4
 	-v /path_to_ftp_dir_for_user1:/home/user1 \
 	-v /path_to_ftp_dir_for_user2:/home/user2 \
 	kibatic/proftpd
@@ -59,6 +68,11 @@ services:
     environment:
       FTP_LIST: "myusername:mypassword"
       USERADD_OPTIONS: "-o --gid 33 --uid 33"
+      # optional : default to 50000 and 50100
+      PASSIVE_MIN_PORT: 50000
+      PASSIVE_MAX_PORT: 50100
+      # optional : default to undefined
+      MASQUERADE_ADDRESS: 1.2.3.4
     volumes:
       - "/the_direcotry_on_the_host:/home/myusername"
 ```
@@ -69,11 +83,12 @@ Firewall
 You can use these firewall rules with the FTP in active mode
 
 ```bash
-modprobe ip_conntrack_ftp
-iptables -A INPUT -p tcp --sport 21 -m state --state ESTABLISHED -j ACCEPT
-iptables -A OUTPUT -p tcp --sport 21 -m state --state ESTABLISHED -j ACCEPT
-iptables -A INPUT -p tcp --sport 20 -m state --state ESTABLISHED,RELATED -j ACCEPT
-iptables -A OUTPUT -p tcp --sport 20 -m state --state ESTABLISHED -j ACCEPT
+iptables -A INPUT -p tcp --dport 21 -j ACCEPT
+iptables -A OUTPUT -p tcp --dport 21 -j ACCEPT
+iptables -A INPUT -p tcp --dport 20 -j ACCEPT
+iptables -A OUTPUT -p tcp --dport 20 -j ACCEPT
+iptables -A INPUT -p tcp --dport 50000:50100 -j ACCEPT
+iptables -A OUTPUT -p tcp --dport 50000:50100 -j ACCEPT
 ```
 
 Testing this Dockerfile
@@ -90,6 +105,7 @@ docker-compose up
 Versions
 --------
 
+* 2022-05-10 : passive port config and masquerade config
 * 2022-05-09 : update to debian:bullseye-slim and better doc
 * 2019-10-09 : USERADD_OPTIONS added
 * 2019-04-01 : update to debian stretch

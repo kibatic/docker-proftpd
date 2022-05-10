@@ -9,6 +9,7 @@ services:
     restart: unless-stopped
     environment:
       FTP_LIST: "user1:pass1;user2:pass2"
+      MASQUERADE_ADDRESS: "4.3.2.1"
         #      USERADD_OPTIONS: "-o --gid 33 --uid 33"
     volumes:
       - "./ddata/user1:/home/user1"
