@@ -10,9 +10,13 @@ if [ -n "$FTP_LIST" ]; then
 		ftp_login=${tab[0]}
 		ftp_pass=${tab[1]}
 		CRYPTED_PASSWORD=$(perl -e 'print crypt($ARGV[0], "password")' $ftp_pass)
-		useradd --shell /bin/sh ${USERADD_OPTIONS} -d /home/$ftp_login --password $CRYPTED_PASSWORD $ftp_login || { echo "Creating user $ftp_login failed! Check previous log message." ; exit 1; }
-    	echo "ftp_login: $ftp_login"
-    	chown -R $ftp_login:$ftp_login /home/$ftp_login || { echo "Failed to chown home folder for $ftp_login ! Check previous log message." ; exit 1; }
+		echo "ftp_login: $ftp_login"
+		# Only create user if it does not exist (e.g.: container is re-started)
+		USER_EXISTS=`id $ftp_login 2&> /dev/null; echo $?`
+		if [ $USER_EXISTS -ne 0 ]; then
+			useradd --shell /bin/sh ${USERADD_OPTIONS} -d /home/$ftp_login --password $CRYPTED_PASSWORD $ftp_login || { echo "Creating user $ftp_login failed! Check previous log message." ; exit 1; }
+    		chown -R $ftp_login:$ftp_login /home/$ftp_login || { echo "Failed to chown home folder for $ftp_login ! Check previous log message." ; exit 1; }
+		fi;
 	done
 fi
 
