@@ -1,10 +1,8 @@
-version: '3.7'
-
 services:
   proftpd:
-    image: kibatic/proftpd
-      #build:
-      #context: ..
+    #image: kibatic/proftpd
+    build:
+      context: ..
     network_mode: "host"
     restart: unless-stopped
     environment:
